@@ -1,6 +1,6 @@
-run-project:
-	# run project
+links:
 	@echo "Grafana UI: http://localhost:3000"
+	@echo "Grafana: http://localhost:3000"
 
 build-api:
 	#docker build -t mlops-coherent_text-api -f ./src/api/v1/Dockerfile .
@@ -13,6 +13,15 @@ run-api:
 stop-api:
 	docker stop coherent_text-api
 
+start-project:
+	#docker compose -p mlops up -d --build
+	docker compose -p mlops up --build ## Pour afficher les logs des services
+
+stop-project:
+	docker compose -p mlops down
+
+rerun: stop-project start-project links
+
 test-api:
 	curl -X POST "https://localhost/predict" \
      -H "Content-Type: application/json" \
@@ -22,5 +31,10 @@ test-api:
 
 test-api-basic:
 	curl -X POST "http://localhost:8000/predict" \
+	 -H "Content-Type: application/json" \
+	 -d '{"sentence": "Oh yeah, that was soooo cool!"}'
+
+ test-api-reverse_proxy:
+	curl -X POST "http://localhost:8080/predict" \
 	 -H "Content-Type: application/json" \
 	 -d '{"sentence": "Oh yeah, that was soooo cool!"}'
