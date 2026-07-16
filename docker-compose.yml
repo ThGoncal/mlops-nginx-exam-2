@@ -19,5 +19,6 @@ services:
     volumes:
       - ./deployments/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./deployments/nginx/certs:/etc/nginx/certs:ro
+      - ./deployments/nginx/.htpasswd:/etc/nginx/.htpasswd:ro
     depends_on:
       - coherent_text-api
