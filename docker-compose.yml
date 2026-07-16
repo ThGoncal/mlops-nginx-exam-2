@@ -1,28 +1,19 @@
 services:
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus_server
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./deployments/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus_data:/prometheus
-    depends_on:
-      - nginx
+  coherent_text-api:
+    build:
+      context: .
+      dockerfile: src/api/v1/Dockerfile
+    expose:
+      - "8000"
 
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana_dashboard
+  nginx:
+    build:
+      context: deployments/nginx/
+      dockerfile: Dockerfile
+    container_name: nginx_revproxy
     ports:
-      - "3000:3000"
+      - "8080:80" # http
     volumes:
-      - grafana_data:/var/lib/grafana
+      - ./deployments/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - prometheus
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-
-volumes:
-  prometheus_data:
-  grafana_data:
+      - coherent_text-api
