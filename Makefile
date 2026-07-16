@@ -38,3 +38,11 @@ test-api-basic:
 	curl -X POST "http://localhost:8080/predict" \
 	 -H "Content-Type: application/json" \
 	 -d '{"sentence": "Oh yeah, that was soooo cool!"}'
+
+ test-api-https:
+	curl -X POST "https://localhost/predict" \
+	 -H "Content-Type: application/json" \
+	 -d '{"sentence": "Oh yeah, that was soooo cool!"}' \
+  	 --cacert ./deployments/nginx/certs/nginx.crt;
+
+
