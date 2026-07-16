@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: src/api/v1/Dockerfile
+    deploy:
+      replicas: 3 # Lance 3 instances de ce service
     expose:
       - "8000"
 
