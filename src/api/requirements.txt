@@ -1,0 +1,5 @@
+joblib==1.5.1
+numpy==2.2.6
+fastapi==0.115.12
+scikit-learn==1.6.1     # Pour utiliser notre modèle
+uvicorn==0.34.3         # Pour lancer notre API
