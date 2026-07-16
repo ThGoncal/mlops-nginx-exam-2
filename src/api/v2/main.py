@@ -1,12 +1,23 @@
 import os
 import joblib
 import numpy as np
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 
-MODEL_PATH = os.path.join(os.path.dirname(__file__), 'model.joblib')
+# On vérifie d'abord si MODEL_PATH est définie dans l'environnement (ex: Docker)
+env_model_path = os.getenv("MODEL_PATH")
+
+if env_model_path:
+    # Cas Docker : la variable d'environnement est définie
+    MODEL_PATH = Path(env_model_path)
+else:
+    # Cas local (uv) : on calcule le chemin par rapport au projet
+    # Racine du projet (2 niveaux au-dessus de src/api/)
+    ROOT_DIR = Path(__file__).resolve().parents[3]
+    MODEL_PATH = ROOT_DIR / 'model' / 'model.joblib'
 
 # Chargement du modèle entraîné
 try:
