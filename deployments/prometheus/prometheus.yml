@@ -4,5 +4,6 @@
     scrape_configs:
       - job_name: 'nginx-exporter'
         static_configs:
+          # Cible à scraper : l'exporter Nginx
           - targets: ['nginx_exporter:9113']
     

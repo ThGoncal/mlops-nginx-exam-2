@@ -1,0 +1,17 @@
+# Ce fichier indique à Grafana où trouver les fichiers JSON des dashboards.
+# Grafana les charge automatiquement au démarrage depuis le dossier indiqué.
+# C'est le principe du "Dashboards as Code" : les dashboards sont versionnés
+# dans Git comme du code, et déployés automatiquement avec le conteneur.
+
+apiVersion: 1
+
+providers:
+  - name: 'default'
+    orgId: 1
+    type: file
+    disableDeletion: false      # permet de supprimer des dashboards depuis l'interface
+    updateIntervalSeconds: 30   # Grafana re-scanne le dossier toutes les 30 secondes
+    allowUiUpdates: true        # permet de modifier les dashboards depuis l'interface
+    options:
+      path: /var/lib/grafana/dashboards   # dossier monté dans docker-compose
+      foldersFromFilesStructure: false
