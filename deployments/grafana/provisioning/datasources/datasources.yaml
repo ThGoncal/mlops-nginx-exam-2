@@ -1,0 +1,13 @@
+# Ce fichier est lu automatiquement par Grafana au démarrage.
+# Il configure Prometheus comme source de données par défaut,
+# sans avoir besoin de le faire manuellement dans l'interface.
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy           # Grafana contacte Prometheus en interne (via Docker DNS)
+    url: http://prometheus:9090
+    isDefault: true         # Source de données utilisée par défaut dans tous les dashboards
+    editable: false         # Empêche la modification accidentelle depuis l'interface

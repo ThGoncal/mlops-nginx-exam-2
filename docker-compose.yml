@@ -1,13 +1,23 @@
 services:
-  coherent_text-api:
+# ── API ────────────────────────────────────────────────────────────────────
+  coherent_text-api-v1:
     build:
       context: .
       dockerfile: src/api/v1/Dockerfile
     deploy:
-      replicas: 3 # Lance 3 instances de ce service
+      replicas: 3 # Lance 3 instances de ce service (load balancing)
     expose:
       - "8000"
 
+  coherent_text-api-v2:
+    build:
+      context: .
+      dockerfile: src/api/v2/Dockerfile
+    expose:
+      - "8000"
+    # Pas de replicas ici : trafic de debug/test, volume attendu plus faible
+
+# ── Nginx ────────────────────────────────────────────────────────────────────
   nginx:
     build:
       context: deployments/nginx/
@@ -21,4 +31,50 @@ services:
       - ./deployments/nginx/certs:/etc/nginx/certs:ro
       - ./deployments/nginx/.htpasswd:/etc/nginx/.htpasswd:ro
     depends_on:
-      - coherent_text-api
+      - coherent_text-api-v1
+      - coherent_text-api-v2
+
+# ── Nginx_exporter ───────────────────────────────────────────────────────────
+  nginx_exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: nginx_exporter
+    ports:
+      - "9113:9113"
+    depends_on:
+      - nginx
+    environment:
+      SCRAPE_URI: https://nginx/nginx_status
+
+# ── Prometheus ───────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus_server
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./deployments/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    depends_on:
+       - nginx_exporter
+
+# ── Grafana ────────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:10.4.3
+    container_name: grafana
+    ports:
+    - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./deployments/grafana/provisioning:/etc/grafana/provisioning
+      - ./deployments/grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
+    restart: always
+
+volumes:
+   prometheus_data:
+   grafana_data:
