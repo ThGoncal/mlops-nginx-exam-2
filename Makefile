@@ -1,5 +1,5 @@
 links:
-	@echo "Grafana UI: http://localhost:3000"
+	@echo "Prometheus: http://localhost:9090"
 	@echo "Grafana: http://localhost:3000"
 
 build-api:
@@ -7,15 +7,15 @@ build-api:
 	docker build -t mlops-coherent_text-api -f ./src/api/v2/Dockerfile .
 
 run-api:
-	docker run --name coherent_text-api -p 8000:8000 mlops-coherent_text-api
-	#docker run --rm -d --name coherent_text-api -p 8000:8000 mlops-coherent_text-api
+	#docker run --name coherent_text-api -p 8000:8000 mlops-coherent_text-api ## Pour afficher les logs
+	docker run --rm -d --name coherent_text-api -p 8000:8000 mlops-coherent_text-api
 
 stop-api:
 	docker stop coherent_text-api
 
 start-project:
-	#docker compose -p mlops up -d --build
-	docker compose -p mlops up --build ## Pour afficher les logs des services
+	docker compose -p mlops up -d --build
+	#docker compose -p mlops up --build ## Pour afficher les logs des services
 
 stop-project:
 	docker compose -p mlops down
@@ -58,6 +58,22 @@ test-api-basic:
 	done; \
 	wait
 
+test-api_A/B_testing:
+	@echo "Router sur api-v1 (pas de "prediction_proba_dict" dans la réponse)\n"
+	curl -k -u admin:admin -X POST "https://localhost/predict" \
+	  -H "Content-Type: application/json" \
+	  -d '{"sentence": "Oh yeah, that was soooo cool!"}' \
+	  --cacert ./deployments/nginx/certs/nginx.crt;
+	@echo "\n"
+	@echo "Router sur api-v2 (avec "prediction_proba_dict" en plus)\n"
+	curl -k -u admin:admin -X POST "https://localhost/predict" \
+	  -H "Content-Type: application/json" \
+	  -H "X-Experiment-Group: debug" \
+	  -d '{"sentence": "Oh yeah, that was soooo cool!"}' \
+  	  --cacert ./deployments/nginx/certs/nginx.crt;
+
+test:
+	 @bash tests/run_tests.sh
 
 
 
