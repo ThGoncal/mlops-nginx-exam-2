@@ -45,4 +45,19 @@ test-api-basic:
 	 -d '{"sentence": "Oh yeah, that was soooo cool!"}' \
   	 --cacert ./deployments/nginx/certs/nginx.crt;
 
+ test-api-rate_limiting:
+ # Le & envoie chaque curl en tâche de fond sans attendre sa réponse avant de lancer le suivant.
+ # wait attend que toutes les tâches soient terminées avant de continuer.
+	for i in $$(seq 1 20); do \
+		curl -s -o /dev/null -w "%{http_code}\n" \
+		-X POST "https://localhost/predict" \
+		-H "Content-Type: application/json" \
+		-d '{"sentence": "Oh yeah, that was soooo cool!"}' \
+		--user "admin:admin" \
+		--cacert ./deployments/nginx/certs/nginx.crt & \
+	done; \
+	wait
+
+
+
 
